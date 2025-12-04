@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喫茶 円相 - ENSO | Modern Zen Cafe</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;600&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sumi': '#1c1c1c', // 少し柔らかい黒
+                        'sumi-light': '#2d2d2d',
+                        'washi': '#f4f1ea', 
+                        'washi-dark': '#ebe7e0', // 少し暗い和紙色（セクション背景用）
+                        'matcha': '#5c6e58', // 抹茶色
+                        'koke': '#4a5d45', // 苔色
+                        'kinari': '#e6e3dc', // 生成り
+                        'akane': '#b64533', // 茜色（アクセント）
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                        serif: ['"Noto Serif JP"', 'serif'],
+                        mincho: ['"Zen Old Mincho"', 'serif'],
+                    },
+                    backgroundImage: {
+                        'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f4f1ea;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+        
+        /* ノイズオーバーレイ */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.08%22/%3E%3C/svg%3E');
+            opacity: 0.6;
+        }
+
+        /* 縦書きクラス */
+        .tategaki {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 0.15em;
+        }
+
+        /* カスタムカーソル */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #1a1a1a;
+        }
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #1a1a1a;
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        /* 画像ホバーエフェクト（PCのみ適用） */
+        @media (hover: hover) {
+            .reveal-img {
+                clip-path: inset(0 100% 0 0);
+                transition: clip-path 1s cubic-bezier(0.77, 0, 0.175, 1);
+            }
+            .reveal-img.active {
+                clip-path: inset(0 0 0 0);
+            }
+            
+            /* 他のホバーエフェクトもここにまとめるのが理想的ですが、
+               Tailwindのクラスを使っているため、主要なカスタムCSSのみ記述 */
+        }
+
+        /* スマホでのタップハイライトを無効化 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* スムースなテキスト表示 */
+        .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        /* ナビゲーションのぼかし */
+        .glass-nav {
+            background: rgba(244, 241, 234, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(26, 26, 26, 0.05);
+        }
+
+        /* 水平スクロールセクション */
+        .horizontal-scroll-wrapper {
+            overflow: hidden;
+        }
+
+        /* 文字の可読性を高める光彩エフェクト */
+        .text-glow {
+            text-shadow: 0 0 20px rgba(244, 241, 234, 0.9), 0 0 10px rgba(244, 241, 234, 0.6);
+        }
+
+        /* スクロールバーを非表示 */
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* アニメーション初期状態（チラつき防止） */
+        .reveal-text-up,
+        .reveal-text,
+        .reveal-line {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="font-serif antialiased selection:bg-matcha selection:text-white bg-washi text-sumi">
+
+    <!-- ローディング画面 -->
+    <div id="loader" class="fixed inset-0 z-[100] bg-washi flex items-center justify-center transition-opacity duration-1000">
+        <div class="text-center relative">
+            <span class="block font-mincho text-4xl mb-6 tracking-[0.5em] animate-pulse text-sumi">円相</span>
+            <!-- 円を描くアニメーション -->
+            <svg class="w-24 h-24 mx-auto rotate-[-90deg]" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#e6e3dc" stroke-width="1" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#1c1c1c" stroke-width="1" stroke-dasharray="283" stroke-dashoffset="283" class="animate-[dash_2s_ease-in-out_forwards]" />
+            </svg>
+        </div>
+    </div>
+
+    <style>
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+
+    <!-- ノイズレイヤー -->
+    <div class="noise-overlay"></div>
+    
+    <!-- カスタムカーソル -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
+
+    <!-- ヘッダー -->
+    <header class="fixed top-0 w-full z-50 transition-all duration-300" id="header">
+        <div class="flex justify-between items-center px-6 py-6 md:px-12">
+            <a href="#" class="text-2xl font-mincho font-bold tracking-widest z-50 relative group text-sumi">
+                <span class="block group-hover:-translate-y-1 transition-transform duration-300">円相</span>
+                <span class="text-xs font-sans font-light tracking-[0.3em] uppercase block opacity-60">Enso</span>
+            </a>
+
+            <!-- デスクトップナビ -->
+            <nav class="hidden md:flex items-center gap-12 font-sans text-sm tracking-widest uppercase text-sumi">
+                <a href="#concept" class="hover:text-matcha transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-[1px] after:bg-matcha after:transition-all hover:after:w-full">Concept</a>
+                <a href="#menu" class="hover:text-matcha transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-[1px] after:bg-matcha after:transition-all hover:after:w-full">Menu</a>
+                <a href="#space" class="hover:text-matcha transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-[1px] after:bg-matcha after:transition-all hover:after:w-full">Space</a>
+                <a href="#access" class="hover:text-matcha transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-[1px] after:bg-matcha after:transition-all hover:after:w-full">Access</a>
+            </nav>
+
+            <!-- モバイルメニューボタン -->
+            <button class="md:hidden z-50 space-y-2 group w-12 h-12 flex flex-col justify-center items-end relative" id="menu-btn">
+                <div class="w-8 h-[1px] bg-sumi transition-all duration-300 group-hover:w-6 origin-right menu-line-1"></div>
+                <div class="w-8 h-[1px] bg-sumi transition-all duration-300 menu-line-2 origin-right"></div>
+            </button>
+        </div>
+    </header>
+
+    <!-- モバイルメニュー（全画面オーバーレイ） -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-washi/98 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-500 flex flex-col items-center justify-center pt-20">
+        <!-- 装飾背景 -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div class="absolute -top-[20%] -right-[20%] w-[60vh] h-[60vh] rounded-full bg-akane/10 blur-[100px]"></div>
+            <div class="absolute -bottom-[20%] -left-[20%] w-[60vh] h-[60vh] rounded-full bg-matcha/10 blur-[100px]"></div>
+        </div>
+        
+        <nav class="flex flex-col gap-12 text-center relative z-10 w-full px-6 max-w-sm mx-auto">
+            <a href="#concept" class="mobile-link group block w-full">
+                <span class="block text-xs font-bold text-koke tracking-[0.4em] mb-2 uppercase mobile-link-sub">Concept</span>
+                <span class="block font-mincho text-4xl text-sumi tracking-widest mobile-link-main group-hover:text-akane transition-colors duration-500 border-b border-sumi/10 pb-4 mx-8 group-hover:border-akane/30">
+                    概念
+                </span>
+            </a>
+            <a href="#menu" class="mobile-link group block w-full">
+                <span class="block text-xs font-bold text-koke tracking-[0.4em] mb-2 uppercase mobile-link-sub">Menu</span>
+                <span class="block font-mincho text-4xl text-sumi tracking-widest mobile-link-main group-hover:text-akane transition-colors duration-500 border-b border-sumi/10 pb-4 mx-8 group-hover:border-akane/30">
+                    献立
+                </span>
+            </a>
+            <a href="#space" class="mobile-link group block w-full">
+                <span class="block text-xs font-bold text-koke tracking-[0.4em] mb-2 uppercase mobile-link-sub">Space</span>
+                <span class="block font-mincho text-4xl text-sumi tracking-widest mobile-link-main group-hover:text-akane transition-colors duration-500 border-b border-sumi/10 pb-4 mx-8 group-hover:border-akane/30">
+                    空間
+                </span>
+            </a>
+            <a href="#access" class="mobile-link group block w-full">
+                <span class="block text-xs font-bold text-koke tracking-[0.4em] mb-2 uppercase mobile-link-sub">Access</span>
+                <span class="block font-mincho text-4xl text-sumi tracking-widest mobile-link-main group-hover:text-akane transition-colors duration-500 border-b border-sumi/10 pb-4 mx-8 group-hover:border-akane/30">
+                    店舗
+                </span>
+            </a>
+            <a href="#access" class="mobile-link group block w-full mt-8">
+                <div class="inline-flex items-center gap-3 px-8 py-4 border border-akane rounded-full text-akane group-hover:bg-akane group-hover:text-washi transition-all duration-300 mobile-link-btn">
+                    <span class="text-sm tracking-widest font-bold">RESERVE</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 画面右下に固定される予約ボタン (FAB) -->
+    <a href="#access" class="fixed bottom-8 right-8 z-40 group hidden md:block">
+        <div class="relative w-20 h-20 bg-akane rounded-full flex items-center justify-center text-washi shadow-xl transition-transform duration-300 group-hover:scale-110">
+            <span class="text-[10px] tracking-widest absolute -top-4 left-1/2 -translate-x-1/2 bg-sumi text-washi px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                ご予約
+            </span>
+            <div class="text-center">
+                <span class="block text-xs tracking-widest font-bold font-sans">RESERVE</span>
+            </div>
+            <!-- 波紋アニメーション -->
+            <div class="absolute inset-0 rounded-full border border-akane animate-ping opacity-75 pointer-events-none"></div>
+        </div>
+    </a>
+
+    <!-- ヒーローセクション -->
+    <!-- h-screen を h-dvh (Dynamic Viewport Height) に変更してスマホのアドレスバー問題に対応 -->
+    <section class="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="LP2（和カフェ）/img/hero-cafe.png" 
+                 alt="Minimalist Japanese Architecture" 
+                 class="w-full h-full object-cover object-center opacity-0 scale-110 transition-all duration-[2s]" 
+                 id="hero-img">
+            <!-- スマホ時のみ、画像の上にグラデーションを強めにかける -->
+            <div class="absolute inset-0 bg-gradient-to-b from-washi/60 via-washi/20 to-washi/95 md:bg-washi/60 backdrop-blur-[1px]"></div>
+        </div>
+
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-6 h-full flex flex-col md:flex-row items-center md:justify-between pt-20 md:pt-0">
+            <!-- キャッチコピー -->
+            <div class="order-2 md:order-1 w-full md:w-1/2 flex flex-col justify-end pb-20 md:pb-0">
+                <p class="font-sans text-sm tracking-[0.2em] mb-6 text-sumi/80 uppercase reveal-text text-glow font-bold">Kyoto, Japan</p>
+                <h1 class="font-mincho text-5xl md:text-8xl leading-[1.1] text-sumi mb-8 text-glow">
+                    <span class="block overflow-hidden"><span class="block reveal-text-up">静寂と、</span></span>
+                    <span class="block overflow-hidden"><span class="block reveal-text-up delay-100">一杯の</span></span>
+                    <span class="block overflow-hidden"><span class="block reveal-text-up delay-200">余白。</span></span>
+                </h1>
+                <p class="font-sans text-sm md:text-base text-sumi/90 leading-loose max-w-md reveal-text delay-500 text-glow font-medium">
+                    喧騒を離れ、心がほどける場所。<br>
+                    伝統と現代が交差する、<br>
+                    新しい喫茶体験へようこそ。
+                </p>
+            </div>
+
+            <!-- 縦書きタイトル -->
+            <div class="order-1 md:order-2 h-[40vh] md:h-auto md:absolute md:right-32 md:top-[70%] md:-translate-y-1/2 flex justify-center md:justify-end mb-10 md:mb-0">
+                <!-- デスクトップのみ表示する縦書き -->
+                <div class="hidden md:flex tategaki font-mincho text-2xl md:text-4xl tracking-[0.5em] border-r border-sumi/30 pr-6 md:pr-12 h-full items-center reveal-line text-sumi text-glow">
+                    現代の茶室、心の調律。
+                </div>
+                <!-- スマホ用横書きキャッチコピー -->
+                <div class="md:hidden text-center mb-8 font-mincho text-xl tracking-widest text-sumi/90 border-b border-sumi/20 pb-4 relative z-20 text-glow font-bold">
+                    現代の茶室、<br>心の調律。
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-60 animate-bounce">
+            <span class="text-[10px] tracking-[0.2em] uppercase">Scroll</span>
+            <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </div>
+    </section>
+
+    <!-- コンセプトセクション -->
+    <section id="concept" class="py-40 md:py-64 bg-washi relative overflow-hidden">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="flex flex-col md:flex-row items-center gap-16 md:gap-32">
+                <div class="w-full md:w-1/2 relative trigger-img">
+                    <div class="aspect-[3/4] overflow-hidden bg-kinari relative">
+                        <img src="LP2（和カフェ）/img/tea ceremony detail.png" 
+                             alt="Tea Ceremony Detail" 
+                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 ease-out">
+                        <!-- 装飾的な円 -->
+                        <div class="absolute -top-12 -right-12 w-24 h-24 border border-sumi/20 rounded-full spin-slow"></div>
+                    </div>
+                    <div class="absolute -bottom-10 -left-10 md:-left-20 bg-matcha text-washi p-8 md:p-12 max-w-xs z-10 parallax-el" data-speed="0.05">
+                        <p class="font-mincho text-lg leading-loose">
+                            「和」とは<br>
+                            調和のこと。<br>
+                            古きと新しきを<br>
+                            結ぶこと。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 flex flex-col justify-center">
+                    <div class="relative mb-16 text-center md:text-left">
+                        <!-- 背景に巨大な薄い文字を配置 -->
+                        <span class="absolute -top-12 left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 text-[80px] md:text-[120px] font-serif text-sumi/5 select-none z-0 leading-none pointer-events-none">
+                            Philosophy
+                        </span>
+                        <span class="text-matcha font-bold text-xs tracking-[0.3em] uppercase mb-6 block relative z-10">Our Philosophy</span>
+                        <h2 class="font-mincho text-3xl md:text-5xl leading-tight relative z-10 text-sumi">
+                            五感で味わう、<br>
+                            <span class="italic text-sumi/60">モダンな侘び寂び。</span>
+                        </h2>
+                        <!-- 背後に淡い赤の円を配置 -->
+                        <div class="absolute -top-6 -left-6 w-16 h-16 bg-akane/10 rounded-full blur-xl -z-10"></div>
+                    </div>
+                    <p class="text-sumi/80 text-lg md:text-xl leading-[2.8] tracking-wider font-light text-justify mb-12">
+                        コンクリートの冷たさと、木の温もり。デジタルの精緻さと、手仕事の不完全さ。<br>
+                        相反する要素を「円相」のように繋ぎ合わせました。<br><br>
+                        選び抜かれた豆で淹れるハンドドリップコーヒーと、京都の老舗から仕入れる季節の和菓子。<br>
+                        ただ消費するのではなく、その空間と時間を慈しむ体験を提供します。
+                    </p>
+                    <a href="#menu" class="inline-flex items-center gap-4 text-sumi hover:text-matcha transition-colors group w-fit">
+                        <span class="tracking-widest text-sm border-b border-sumi group-hover:border-matcha pb-1 transition-colors">READ MORE</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-2 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- メニューセクション -->
+    <section id="menu" class="py-24 md:py-32 bg-gradient-to-b from-washi to-washi-dark border-t border-sumi/5">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="relative mb-24 text-center">
+                <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[100px] md:text-[150px] font-serif text-sumi/5 select-none z-0 leading-none pointer-events-none">
+                    Menu
+                </span>
+                <span class="text-xs font-bold tracking-[0.3em] uppercase text-matcha mb-4 block relative z-10">Menu</span>
+                <h2 class="font-mincho text-4xl md:text-5xl relative z-10 text-sumi">お品書き</h2>
+            </div>
+
+            <!-- グリッドレイアウト -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-40 md:gap-x-16">
+                
+                <!-- アイテム 1 -->
+                <div class="md:col-span-6 group cursor-pointer menu-item">
+                    <div class="overflow-hidden mb-6 relative aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1515823064-d6e0c04616a7?q=80&w=2071&auto=format&fit=crop" 
+                             alt="Matcha Latte" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-sumi/0 group-hover:bg-sumi/10 transition-colors duration-500"></div>
+                    </div>
+                    <div class="flex justify-between items-baseline border-b border-sumi/20 pb-4 mb-2">
+                        <h3 class="font-mincho text-2xl group-hover:text-matcha transition-colors">特選 抹茶ラテ</h3>
+                        <span class="font-sans font-light text-lg">¥900</span>
+                    </div>
+                    <p class="text-sm text-sumi/60 leading-relaxed">京都宇治の「初摘み」のみを使用。濃厚な旨味とほのかな苦味。</p>
+                </div>
+
+                <!-- アイテム 2 -->
+                <div class="md:col-span-6 md:mt-24 group cursor-pointer menu-item">
+                    <div class="overflow-hidden mb-6 relative aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop" 
+                             alt="Hand Drip Coffee" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-sumi/0 group-hover:bg-sumi/10 transition-colors duration-500"></div>
+                    </div>
+                    <div class="flex justify-between items-baseline border-b border-sumi/20 pb-4 mb-2">
+                        <h3 class="font-mincho text-2xl group-hover:text-matcha transition-colors">円相ブレンド</h3>
+                        <span class="font-sans font-light text-lg">¥800</span>
+                    </div>
+                    <p class="text-sm text-sumi/60 leading-relaxed">深煎りのマンデリンをベースに、スッキリとした後味を追求した自家焙煎。</p>
+                </div>
+
+                <!-- アイテム 3 -->
+                <div class="md:col-span-6 group cursor-pointer menu-item">
+                    <div class="overflow-hidden mb-6 relative aspect-[4/3]">
+                        <img src="LP2（和カフェ）/img/生菓子.png" 
+                             alt="Wagashi" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-sumi/0 group-hover:bg-sumi/10 transition-colors duration-500"></div>
+                    </div>
+                    <div class="flex justify-between items-baseline border-b border-sumi/20 pb-4 mb-2">
+                        <h3 class="font-mincho text-2xl group-hover:text-matcha transition-colors">季節の生菓子</h3>
+                        <span class="font-sans font-light text-lg">¥650</span>
+                    </div>
+                    <p class="text-sm text-sumi/60 leading-relaxed">二十四節気に合わせて変わる、職人手作りの練り切り。</p>
+                </div>
+
+                <!-- アイテム 4 -->
+                <div class="md:col-span-6 md:mt-24 group cursor-pointer menu-item">
+                    <div class="overflow-hidden mb-6 relative aspect-[4/3]">
+                        <img src="LP2（和カフェ）/img/ほうじ茶と柚子のパルフェ.png" 
+                             alt="Modern Parfait" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-sumi/0 group-hover:bg-sumi/10 transition-colors duration-500"></div>
+                    </div>
+                    <div class="flex justify-between items-baseline border-b border-sumi/20 pb-4 mb-2">
+                        <h3 class="font-mincho text-2xl group-hover:text-matcha transition-colors">ほうじ茶と柚子のパルフェ</h3>
+                        <span class="font-sans font-light text-lg">¥1,200</span>
+                    </div>
+                    <p class="text-sm text-sumi/60 leading-relaxed">香ばしいほうじ茶ゼリーと爽やかな柚子ソルベのモダンな組み合わせ。</p>
+                </div>
+
+            </div>
+            
+            <div class="text-center mt-20">
+                <a href="#" class="group relative inline-flex items-center justify-center px-10 py-4 overflow-hidden font-mincho font-medium tracking-widest text-white bg-sumi transition-all duration-300 rounded hover:bg-matcha hover:shadow-xl">
+                    <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                    <span class="relative flex items-center gap-3">
+                        VIEW FULL MENU
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 空間（ギャラリー）セクション -->
+    <section id="space" class="py-24 bg-sumi text-washi relative overflow-hidden">
+        <div class="container mx-auto px-6 md:px-12 mb-12 flex justify-between items-end">
+            <div>
+                <span class="text-xs font-bold tracking-[0.3em] uppercase text-sumi/50 bg-washi/90 px-2 py-1 mb-4 inline-block">Space</span>
+                <h2 class="font-mincho text-3xl md:text-5xl">空間と調和</h2>
+            </div>
+        </div>
+
+        <!-- 横スクロールギャラリー -->
+        <div class="relative">
+            <!-- スワイプを促すアイコン（スマホのみ表示） -->
+            <div class="md:hidden absolute -top-8 right-6 flex items-center gap-2 text-washi/50 text-xs animate-pulse z-10">
+                <span>Swipe</span>
+                <i data-lucide="move-horizontal" class="w-4 h-4"></i>
+            </div>
+            
+            <div class="w-full overflow-x-auto hide-scrollbar pb-12 pl-6 md:pl-12">
+                <div class="flex gap-8 md:gap-16 w-max pr-12">
+                    <div class="w-[80vw] md:w-[40vw] h-[50vh] md:h-[60vh] relative shrink-0 group overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
+                        <img src="LP2（和カフェ）/img/空間1.png" alt="Interior" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            <span class="font-mincho text-2xl">本館 カウンター</span>
+                        </div>
+                    </div>
+                    <div class="w-[80vw] md:w-[40vw] h-[50vh] md:h-[60vh] relative shrink-0 group overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
+                        <img src="LP2（和カフェ）/img/空間2.png" alt="Garden" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            <span class="font-mincho text-2xl">中庭「静の庭」</span>
+                        </div>
+                    </div>
+                    <div class="w-[80vw] md:w-[40vw] h-[50vh] md:h-[60vh] relative shrink-0 group overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
+                        <img src="LP2（和カフェ）/img/空間3.png" alt="Light" class="w-full h-full object-cover">
+                         <div class="absolute bottom-0 left-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            <span class="font-mincho text-2xl">光の回廊</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- アクセス / インフォメーション -->
+    <section id="access" class="py-24 md:py-32 bg-washi relative">
+        <div class="container mx-auto px-6 md:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div class="order-2 md:order-1">
+                    <div class="w-full h-[400px] bg-kinari relative overflow-hidden grayscale hover:grayscale-0 transition-all duration-500">
+                        <!-- ダミーマップ画像 -->
+                         <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2074&auto=format&fit=crop" alt="Kyoto Street" class="w-full h-full object-cover opacity-80">
+                         <div class="absolute inset-0 flex items-center justify-center">
+                             <div class="bg-washi/90 p-8 text-center backdrop-blur-sm">
+                                <p class="font-mincho text-xl mb-2">Google Map</p>
+                                <p class="text-xs text-sumi/60 uppercase tracking-widest">Click to Open</p>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 md:order-2">
+                    <div class="flex items-center gap-4 mb-10">
+                        <div class="h-[1px] w-12 bg-matcha"></div>
+                        <h2 class="font-mincho text-3xl md:text-4xl">店舗情報</h2>
+                    </div>
+                    
+                    <div class="space-y-8 font-sans font-light">
+                        <div class="flex flex-col md:flex-row border-b border-sumi/10 pb-4">
+                            <span class="w-32 text-xs font-bold uppercase tracking-widest text-sumi/50 mb-2 md:mb-0">Address</span>
+                            <p class="text-sumi">京都府京都市東山区 〇〇通下ル 123-4</p>
+                        </div>
+                        <div class="flex flex-col md:flex-row border-b border-sumi/10 pb-4">
+                            <span class="w-32 text-xs font-bold uppercase tracking-widest text-sumi/50 mb-2 md:mb-0">Hours</span>
+                            <div>
+                                <p class="text-sumi mb-1">10:00 - 18:00 (L.O. 17:30)</p>
+                                <p class="text-sm text-sumi/60">定休日：水曜日・木曜日</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row border-b border-sumi/10 pb-4">
+                            <span class="w-32 text-xs font-bold uppercase tracking-widest text-sumi/50 mb-2 md:mb-0">Contact</span>
+                            <p class="text-sumi">075-123-4567</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex gap-6">
+                        <a href="#" class="w-10 h-10 rounded-full border border-sumi/20 flex items-center justify-center hover:bg-sumi hover:text-washi transition-all hover:scale-110">
+                            <i data-lucide="instagram" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-sumi/20 flex items-center justify-center hover:bg-sumi hover:text-washi transition-all hover:scale-110">
+                            <i data-lucide="twitter" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="bg-[#111] text-washi/40 py-12 border-t border-washi/10">
+        <div class="container mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="font-mincho text-2xl text-washi tracking-widest">円相</div>
+            <div class="text-xs font-sans tracking-[0.2em] uppercase">
+                &copy; 2024 Kissa Enso. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // アイコンの初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+
+        // GSAPの登録
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ヒーローアニメーションの初期化関数
+        const initHeroAnimation = () => {
+            const tl = gsap.timeline();
+
+            // 画像のフェードイン（少し早く）
+            tl.to("#hero-img", {
+                opacity: 1,
+                scale: 1,
+                duration: 1.5,
+                ease: "power2.inOut"
+            })
+            // テキストの表示（スピードアップしつつ高級感を維持）
+            .fromTo(".reveal-text-up", 
+                {
+                    y: 30,
+                    opacity: 0,
+                    filter: 'blur(12px)'
+                },
+                {
+                    y: 0,
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                    stagger: 0.15, // 間隔を詰めてリズミカルに
+                    duration: 1.4, // 全体の時間を短縮
+                    ease: "power2.out"
+                }, 
+            "<") // 画像と完全に同時に開始
+            .fromTo(".reveal-text", 
+                {
+                    y: 20,
+                    opacity: 0,
+                    filter: 'blur(8px)'
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    filter: 'blur(0px)',
+                    duration: 1.2,
+                    ease: "power2.out"
+                }, 
+            "-=1.0") // タイトル表示の後半に重ねる
+            // 縦線の表示（これも早める）
+            .fromTo(".reveal-line", 
+                {
+                    height: '0%',
+                    opacity: 0
+                },
+                {
+                    height: '100%',
+                    opacity: 1,
+                    duration: 1.0,
+                    ease: "power2.inOut"
+                }, 
+            "-=1.2");
+
+            // ヒーロー画像を常にゆっくり動かし続ける
+            gsap.to("#hero-img", {
+                scale: 1.15,
+                duration: 20,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: 2.2 // 最初のフェードインが終わってから開始
+            });
+        };
+
+        // ローディング制御とアニメーション開始
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            
+            // 少し待ってからフェードアウト（円描画アニメーションを見せるため）
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    // ローディング終了後にヒーローアニメーション開始
+                    initHeroAnimation();
+                }, 1000);
+            }, 2000);
+        });
+
+        // スクロールヘッダーの制御
+        const header = document.getElementById('header');
+        let isMenuOpen = false;
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const line1 = document.querySelector('.menu-line-1');
+        const line2 = document.querySelector('.menu-line-2');
+
+        // メニューの開閉処理
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            
+            if (isMenuOpen) {
+                // メニューを開く
+                mobileMenu.classList.remove('pointer-events-none', 'opacity-0');
+                document.body.style.overflow = 'hidden'; // スクロールロック
+                
+                // ハンバーガーアイコンのアニメーション（×印に）
+                gsap.to(line1, { rotation: -45, y: 5, backgroundColor: '#1c1c1c', width: '32px', duration: 0.3 });
+                gsap.to(line2, { rotation: 45, y: -5, backgroundColor: '#1c1c1c', width: '32px', duration: 0.3 });
+                
+                // メニュー項目の出現アニメーション
+                const tl = gsap.timeline();
+                tl.fromTo(".mobile-link-sub", 
+                    { y: 10, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.4, stagger: 0.1, ease: "power2.out" }
+                )
+                .fromTo(".mobile-link-main",
+                    { y: 20, opacity: 0, filter: 'blur(5px)' },
+                    { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.6, stagger: 0.1, ease: "power2.out" },
+                    "-=0.3"
+                )
+                .fromTo(".mobile-link-btn",
+                    { scale: 0.9, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" },
+                    "-=0.3"
+                );
+                
+            } else {
+                // メニューを閉じる
+                mobileMenu.classList.add('pointer-events-none', 'opacity-0');
+                document.body.style.overflow = ''; // ロック解除
+                
+                // ハンバーガーアイコンを元に戻す
+                gsap.to(line1, { rotation: 0, y: 0, backgroundColor: '#1c1c1c', width: '32px', duration: 0.3 });
+                gsap.to(line2, { rotation: 0, y: 0, backgroundColor: '#1c1c1c', width: '32px', duration: 0.3 });
+            }
+        });
+
+        // モバイルリンクをクリックしたら閉じる
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (isMenuOpen) menuBtn.click();
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('glass-nav', 'py-4');
+                header.classList.remove('py-6');
+            } else {
+                header.classList.remove('glass-nav', 'py-4');
+                header.classList.add('py-6');
+            }
+        });
+
+        // コンセプトセクションのアニメーション
+        gsap.from(".trigger-img img", {
+            scrollTrigger: {
+                trigger: "#concept",
+                start: "top 80%",
+                end: "bottom 20%",
+                scrub: 1
+            },
+            y: 50,
+            scale: 1.1
+        });
+
+        gsap.to(".parallax-el", {
+            scrollTrigger: {
+                trigger: "#concept",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true
+            },
+            y: -50
+        });
+
+        // メニューアイテムのフェードイン
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach((item, index) => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 85%",
+                },
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                delay: index % 2 === 0 ? 0 : 0.2
+            });
+        });
+
+        // カスタムカーソルの動き
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // ドットは即座に追従
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // アウトラインは少し遅れて追従
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // リンクホバー時のカーソル拡大
+        const links = document.querySelectorAll('a, button, .menu-item');
+        links.forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                cursorOutline.style.width = '60px';
+                cursorOutline.style.height = '60px';
+                cursorOutline.style.backgroundColor = 'rgba(26, 26, 26, 0.1)';
+            });
+            link.addEventListener('mouseleave', () => {
+                cursorOutline.style.width = '40px';
+                cursorOutline.style.height = '40px';
+                cursorOutline.style.backgroundColor = 'transparent';
+            });
+        });
+
+    </script>
+</body>
+</html>

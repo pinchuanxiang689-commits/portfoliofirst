@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SHO Portfolio | AIエンジニア・Web制作者</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- パーティクル背景 -->
+    <div id="particles-container"></div>
+    
+    <!-- グリッドオーバーレイ -->
+    <div class="cyber-grid"></div>
+    
+    <!-- ナビゲーション -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">SHO</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">ホーム</a></li>
+                <li><a href="#about" class="nav-link">私について</a></li>
+                <li><a href="#skills" class="nav-link">スキル</a></li>
+                <li><a href="#portfolio" class="nav-link">実績</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ヒーローセクション -->
+    <section id="home" class="hero">
+        <div class="hero-content fade-in">
+            <div class="hero-greeting">Welcome to</div>
+            <h1 class="hero-title">
+                SHOの<br>ポートフォリオ
+            </h1>
+            <p class="hero-subtitle typing-text">
+                <span class="typing-cursor">|</span>
+            </p>
+            <p class="hero-description">
+                AI技術 × Web制作で、ビジネスを加速させる。<br>
+                確かなコーディング技術と最新のAI活用で、<br>
+                成果に繋がるWebサイト・LPをご提案します。
+            </p>
+            <div class="hero-buttons">
+                <a href="#portfolio" class="btn-primary">
+                    <span>制作実績を見る</span>
+                    <div class="btn-glow"></div>
+                </a>
+            </div>
+            <!-- スクロール指示は削除 -->
+        </div>
+        
+        <!-- 3Dホログラム風の装飾 -->
+        <div class="hologram-circle"></div>
+        <div class="hologram-circle-2"></div>
+    </section>
+
+    <!-- ABOUTセクション -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header fade-up">
+                <span class="section-number">01</span>
+                <h2 class="section-title">私について</h2>
+                <div class="title-underline"></div>
+            </div>
+            
+            <div class="about-content" style="grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;">
+                <div class="about-text fade-up">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">about.txt</span>
+                        </div>
+                        <div class="terminal-body">
+                            <p class="terminal-line">
+                                <span class="prompt">></span> AIエンジニアとして、
+                            </p>
+                            <p class="terminal-line">
+                                <span class="prompt">></span> 最新のAI技術を活用した開発を行っています。
+                            </p>
+                            <p class="terminal-line">
+                                <span class="prompt">></span> HTML/CSSの基礎を習得し、
+                            </p>
+                            <p class="terminal-line">
+                                <span class="prompt">></span> Python、GitHubなどの技術を学習中です。
+                            </p>
+                            <p class="terminal-line">
+                                <span class="prompt">></span> AI自動化、動画生成など、AIの可能性を追求しています。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 統計情報は実績が蓄積されてから表示します -->
+                    <div class="learning-focus">
+                        <h4 class="focus-title">現在の学習フォーカス</h4>
+                        <div class="focus-items">
+                            <div class="focus-item">
+                                <i class="fab fa-python"></i>
+                                <span>Python</span>
+                            </div>
+                            <div class="focus-item">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </div>
+                            <div class="focus-item">
+                                <i class="fas fa-robot"></i>
+                                <span>AI開発</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILLSセクション -->
+    <section id="skills" class="skills">
+        <div class="container">
+            <div class="section-header fade-up">
+                <span class="section-number">02</span>
+                <h2 class="section-title">スキル・強み</h2>
+                <div class="title-underline"></div>
+            </div>
+            
+            <div class="skills-grid">
+                <!-- スキルカード1 -->
+                <div class="skill-card fade-up">
+                    <div class="skill-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="skill-name">AI活用</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-progress="90"></div>
+                    </div>
+                    <span class="skill-percent">90%</span>
+                    <p class="skill-description">業務自動化・動画生成</p>
+                </div>
+                
+                <!-- スキルカード2 -->
+                <div class="skill-card fade-up">
+                    <div class="skill-icon">
+                        <i class="fab fa-html5"></i>
+                    </div>
+                    <h3 class="skill-name">HTML / CSS</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-progress="90"></div>
+                    </div>
+                    <span class="skill-percent">90%</span>
+                    <p class="skill-description">LP制作・応用可能</p>
+                </div>
+                
+                <!-- スキルカード3 -->
+                <div class="skill-card fade-up">
+                    <div class="skill-icon">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h3 class="skill-name">Python</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-progress="40"></div>
+                    </div>
+                    <span class="skill-percent">学習中</span>
+                    <p class="skill-description">自動化スクリプト</p>
+                </div>
+                
+                <!-- スキルカード4 -->
+                <div class="skill-card fade-up">
+                    <div class="skill-icon">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <h3 class="skill-name">GitHub</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-progress="35"></div>
+                    </div>
+                    <span class="skill-percent">学習中</span>
+                    <p class="skill-description">バージョン管理</p>
+                </div>
+                
+                <!-- スキルカード5 -->
+                <div class="skill-card fade-up">
+                    <div class="skill-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3 class="skill-name">AI動画生成</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-progress="85"></div>
+                    </div>
+                    <span class="skill-percent">85%</span>
+                    <p class="skill-description">高品質動画制作</p>
+                </div>
+                
+                <!-- スキルカード6 -->
+                <div class="skill-card fade-up">
+                    <div class="skill-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="skill-name">業務自動化</h3>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-progress="80"></div>
+                    </div>
+                    <span class="skill-percent">80%</span>
+                    <p class="skill-description">効率化ツール開発</p>
+                </div>
+            </div>
+            
+            <!-- 専門分野タグ -->
+            <div class="tech-tags fade-up">
+                <span class="tech-tag">ChatGPT</span>
+                <span class="tech-tag">Claude</span>
+                <span class="tech-tag">Midjourney</span>
+                <span class="tech-tag">AI動画生成</span>
+                <span class="tech-tag">業務自動化</span>
+                <span class="tech-tag">LP制作</span>
+                <span class="tech-tag">Prompt Engineering</span>
+                <span class="tech-tag">Notion</span>
+                <span class="tech-tag">Canva</span>
+                <span class="tech-tag">HTML/CSS</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTFOLIOセクション -->
+    <section id="portfolio" class="projects" style="padding-bottom: 10rem;">
+        <div class="container">
+            <div class="section-header fade-up">
+                <span class="section-number">03</span>
+                <h2 class="section-title">制作実績</h2>
+                <p class="section-subtitle">これまでに制作したランディングページをご紹介します</p>
+                <div class="title-underline"></div>
+            </div>
+            
+            <div class="projects-grid">
+                <!-- プロジェクト1: 税理士法人LP -->
+                <div class="project-card fade-up">
+                    <!-- 税理士LPへのリンクを設定 -->
+                    <a href="LP1（税理士）/index.html" target="_blank" rel="noopener noreferrer" class="project-link-wrapper">
+                        <div class="project-image">
+                            <!-- 画像を表示 -->
+                            <img src="LP1（税理士）/images/team.png" alt="税理士法人LP" style="width:100%; height:100%; object-fit:cover;">
+                            <div class="project-overlay">
+                                <div class="overlay-text">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>サイトを見る</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="project-content">
+                        <div class="project-category">ランディングページ</div>
+                        <h3 class="project-title">税理士法人 LP制作</h3>
+                        <p class="project-description">
+                            信頼と革新を表現する税理士法人向けランディングページ。React × Tailwind CSSによるモダンな実装で、スムーズなアニメーションと洗練されたUIを実現。「相談したくなる」プロフェッショナルな世界観を構築しました。
+                        </p>
+                        <div class="project-tags">
+                            <span class="project-tag">React</span>
+                            <span class="project-tag">Tailwind CSS</span>
+                            <span class="project-tag">LP制作</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- プロジェクト2: 和カフェLP -->
+                <div class="project-card fade-up">
+                    <!-- カフェLPへのリンクを設定 -->
+                    <a href="index.html" target="_blank" rel="noopener noreferrer" class="project-link-wrapper">
+                        <div class="project-image">
+                            <!-- 画像を表示 -->
+                            <img src="LP2（和カフェ）/img/hero-cafe.png" alt="和カフェLP" style="width:100%; height:100%; object-fit:cover;">
+                            <div class="project-overlay">
+                                <div class="overlay-text">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>サイトを見る</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="project-content">
+                        <div class="project-category">ランディングページ</div>
+                        <h3 class="project-title">モダン和カフェ「円相」 LP</h3>
+                        <p class="project-description">
+                            京都の和カフェをイメージしたLP。「静寂と余白」をテーマに、GSAPを用いたスクロールアニメーションと縦書きレイアウトで世界観を表現しました。
+                        </p>
+                        <div class="project-tags">
+                            <span class="project-tag">GSAP</span>
+                            <span class="project-tag">Tailwind CSS</span>
+                            <span class="project-tag">デザイン</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">
+                    <span class="highlight">SHO</span> - AIエンジニア
+                </p>
+                <p class="footer-copyright">
+                    © 2025 SHO Portfolio. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ページトップボタン -->
+    <button id="scrollTopBtn" class="scroll-top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
